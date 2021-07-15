@@ -1,0 +1,9 @@
+LICENSE
+MANIFEST.in
+README.md
+micropyGPS.py
+setup.py
+micropyGPS.egg-info/PKG-INFO
+micropyGPS.egg-info/SOURCES.txt
+micropyGPS.egg-info/dependency_links.txt
+micropyGPS.egg-info/top_level.txt
