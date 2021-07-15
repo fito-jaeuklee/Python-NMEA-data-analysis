@@ -2,7 +2,7 @@
 
 ### 1) 개발환경 설정
 
-micropyGPS ( https://github.com/inmcm/micropyGPS ) 라는 사이트의 파싱 API를 사용하였기 때문에
+micropyGPS ( https://github.com/inmcm/micropyGPS ) 라는 reop의 파싱 API를 사용하였기 때문에
 관련 설치를 진행해야한다.
 
 또는
