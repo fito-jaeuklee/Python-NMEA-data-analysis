@@ -57,14 +57,29 @@ def rtn_total_chunk_data():
         with open(path, 'rb') as f:
             barr = f.readlines()
             print(barr[0])
-            barr[0] = barr[0][12:]
-            print(barr[0])
+            if 'start' in str(barr[0]):
+                print("Dummy(~~~~start) data in this file")
+                barr[0] = barr[0][12:]
+                print(barr[0])
+
+            # for x in barr:
+            #     try:
+            #         str_nmea_data = x.decode('utf-8')
+            #     except:
+            #         pass
+            check_flag +=1
+            print(check_flag)
             str_nmea_data = [x.decode('utf-8') for x in barr]
+
             # print(str_nmea_data)
             index_cnt_list = index_for_GGA(str_nmea_data)
+            # print("index_cnt_list", index_cnt_list)
+            # print("3242", index_cnt_list[1]-index_cnt_list[0])
 
-            for i in index_cnt_list:
-                for j in range(i, i+9):
+            for i in range(0, len(index_cnt_list) - 1):
+                for j in range(index_cnt_list[i],
+                               (index_cnt_list[i+1]-index_cnt_list[i]) + index_cnt_list[i]):
+                    print(j)
                     one_chunk_data.append(str_nmea_data[j])
                 print(one_chunk_data)
                 total_chunk_data.append(one_chunk_data)

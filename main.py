@@ -1,17 +1,17 @@
-from micropyGPS import MicropyGPS
-import NMEA_cell_gp_parse
-import NMEA_graph
-
-my_gps = MicropyGPS()
-my_sentence = '$GPRMC,081836,A,3751.65,S,14507.36,E,000.0,360.0,130998,011.3,E*62'
-
 #GGA = UTC / Lat / NS / Long / EW / GPS qual / sat Used / HDOP / Alti / Geoidal Sep / DFPS S ID / checksum
 #GSA = Mode(A, M) / Fix mode(123) / Sat ID / PDOP / HDOP / VDOP / checksum
 #GSV = number of msg / msg number ex )1/5 / sat in view / sat id / elevation / azimuth /snr /반복 max 4 / checksum
 #RMC = UTC / status (VA) / lat / NS / Long / EW / speed / course / UTC data / Mode (NADE) / checksum
 
-# File output(filename + 'parsed' + .txt) = UTC / Lat / NS / Long / EW /  / satellites used # / Satellites of view / Fix mode(not, 2d, 3d) / HDOP / PDOP / VDOP /
+# File output(filename + 'parsed' + .txt) =
+# UTC / Lat / NS / Long / EW /  satellites used # / GPS altitude / Fix mode(not, 2d, 3d) / HDOP / Speed over GND
 
+from micropyGPS import MicropyGPS
+import NMEA_cell_gp_parse
+import NMEA_graph_1D
+
+my_gps = MicropyGPS()
+my_sentence = '$GPRMC,081836,A,3751.65,S,14507.36,E,000.0,360.0,130998,011.3,E*62'
 
 total_chunk_data_one_file, filename = NMEA_cell_gp_parse.rtn_total_chunk_data()
 
@@ -55,26 +55,12 @@ for i in range(0, len(total_chunk_data_one_file)):
             #     print("Latitude = ", my_gps.latitude)
             #     print("Longitude = ", my_gps.longitude)
             #
-            #     # print(my_gps.course)
-            #     # print(my_gps.altitude)
-            #     # print(my_gps.geoid_height)
-            #
-            #     # print(my_gps.speed)
-            #     # print("time", my_gps.timestamp)
-            #     # print(my_gps.date)
-            #     # print(my_gps.local_offset)
-            #     # print("Satellites Used = ", my_gps.satellites_used)
-            #
+            #     print("Altitude [m] = ", my_gps.altitude)
+            #     print("Fix_type = ", my_gps.fix_type)
             #     print("Satellites in use = ", my_gps.satellites_in_use)
             #     print("Satellites of view = ", my_gps.satellites_in_view)
-            #     print("Fix_type = ", my_gps.fix_type)
-            #
             #     print("HDOP = ", my_gps.hdop)
-            #     print("VDOP = ", my_gps.vdop)
-            #     print("PDOP = ", my_gps.pdop)
-            #
-            #     # print(my_gps.satellite_data)
-            #     # print(my_gps.satellites_visible())
+            #     print("speed [km/h] = ", my_gps.speed)
             #
             #     print(my_gps.parsed_sentences)
             #     print(my_gps.clean_sentences)
@@ -84,13 +70,12 @@ for i in range(0, len(total_chunk_data_one_file)):
     one_chunk_buf.append(my_gps.timestamp)
     one_chunk_buf.append(my_gps.latitude)
     one_chunk_buf.append(my_gps.longitude)
-    # one_chunk_buf.append(my_gps.satellites_used)
+    one_chunk_buf.append(my_gps.altitude)
+    one_chunk_buf.append(my_gps.fix_type)
     one_chunk_buf.append(my_gps.satellites_in_use)
     one_chunk_buf.append(my_gps.satellites_in_view)
-    one_chunk_buf.append(my_gps.fix_type)
     one_chunk_buf.append(my_gps.hdop)
-    one_chunk_buf.append(my_gps.vdop)
-    one_chunk_buf.append(my_gps.pdop)
+    one_chunk_buf.append(my_gps.speed[2])
     # print(one_chunk_buf)
     sum_chuck.append(one_chunk_buf)
     one_chunk_buf = []
@@ -108,15 +93,16 @@ for i in range(0, len(sum_chuck)):
     for z in range(3, 9):
         define_new_list_from_chunck.append(sum_chuck[i][z])
 
-    # print(define_new_list_from_chunck)
-
-    # nmea_file_save.write("UTC(h, m, s) / Lat / Long / satellites used No. / Satellites of view / Fix mode(not, 2d, 3d) / HDOP / PDOP / VDOP / \n")
-
     for k in range(0, len(define_new_list_from_chunck)):
+        print(define_new_list_from_chunck[k])
         nmea_file_save.write("%s " % str(define_new_list_from_chunck[k]))
     nmea_file_save.write("\n")
 nmea_file_save.close()
 
-# -------------------plot graph and save png----------------
-NMEA_graph.NMEA_plot_and_save_png(filename[0][:-3] + '_filtered' + '.txt')
+# -------------------1D plot graph and save png----------------
+NMEA_graph_1D.NMEA_plot_and_save_png(filename[0][:-3] + '_filtered' + '.txt')
+
+# -------------------2D plot graph(X, Y) and save png ------------
+#--------------------Error evaluation GT vs cell ----------------
+
 
