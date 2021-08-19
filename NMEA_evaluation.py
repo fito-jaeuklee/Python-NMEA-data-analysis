@@ -135,8 +135,18 @@ def search_GT_cell_start_end_index_by_follow_time(start_time, end_time, gt_time_
     print("gt_time_list.index(start_time) =", gt_time_list.index(gt_time_list[0]))
     print("gt_time_list.index(end_time) =", gt_time_list.index(gt_time_list[len(gt_time_list) - 1]))
     print("")
-    print("cell_time_list.index(start_time) =", cell_time_list.index(gt_time_list[0]))
-    print("cell_time_list.index(start_time) =", cell_time_list.index(gt_time_list[len(gt_time_list) - 1]))
+    for z in range(0, len(gt_time_list)):
+        try:
+            print("cell_time_list.index(start_time) =", cell_time_list.index(gt_time_list[z]))
+            break
+        except:
+            pass
+    for j in range(1, len(gt_time_list)):
+        try:
+            print("cell_time_list.index(start_time) =", cell_time_list.index(gt_time_list[len(gt_time_list) - j]))
+            break
+        except:
+            pass
 
     print("gt time list len / cell time list len = ", len(gt_time_list), len(cell_time_list))
 
@@ -181,6 +191,7 @@ def save_lla_coords_and_speed_from_txt(filepath):
     hdop_mean = hdop_sum / len(lla_coords)
 
     for alt in lla_coords:
+        print("asdasdsdfasdfkhjl", alt[2])
         sum_alt_diff += math.pow(alt[2] - alt_mean, 2)
     alt_variance = sum_alt_diff / len(lla_coords)
     print(alt_variance)
@@ -221,10 +232,11 @@ def compare_evaluation_value_gt_cell(dict_gt_cell, GT_file_path_glob, Cell_file_
     # Follow dictionary of gt cell data index list, each data append
 
     print("$%^ = ", dict_gt_cell)
+    dict_gt_cell = dict_gt_cell
     print(list(dict_gt_cell.keys())[0])
     print(list(dict_gt_cell.keys())[len(dict_gt_cell) - 1])
 
-    gt_start_index = list(dict_gt_cell.keys())[0]
+    gt_start_index = list(dict_gt_cell.keys())[1]
     gt_end_index = list(dict_gt_cell.keys())[len(dict_gt_cell) - 1]
 
     for i in range(gt_start_index, gt_end_index + 1):
@@ -274,22 +286,27 @@ Cell_file_path_glob = filedialog.askdirectory()
 
 gt_full_txt_file_path = []
 cell_full_txt_file_path = []
-# cell_full_txt_file_path = [['/Users/jaeuklee/Downloads/7월27일_분석완/um220/CLBX-4A-22_1.2_66_1627436443_0/15min fix(5 div)/1/1_filtered.txt'], ['/Users/jaeuklee/Downloads/7월27일_분석완/um220/CLBX-4A-22_1.2_66_1627436443_0/15min fix(5 div)/2/2_filtered.txt'], ['/Users/jaeuklee/Downloads/7월27일_분석완/um220/CLBX-4A-22_1.2_66_1627436443_0/15min fix(5 div)/3/3_filtered.txt'], ['/Users/jaeuklee/Downloads/7월27일_분석완/um220/CLBX-4A-22_1.2_66_1627436443_0/15min fix(5 div)/4/4_filtered.txt'], ['/Users/jaeuklee/Downloads/7월27일_분석완/um220/CLBX-4A-22_1.2_66_1627436443_0/15min fix(5 div)/5/5_filtered.txt']]
 
+print("GLOB")
 print(GT_file_path_glob)
 print(Cell_file_path_glob)
 
 # Extract test degree from
+folder_index_list = ["0", "30", "60", "90", "float"]
 
 
-for i in range(0, 4):
-    Cell_file_path_glob_add_degree = Cell_file_path_glob + '/' + degree_name[i]
-    gt_file_path_glob_add_degree = GT_file_path_glob + '/' + 'gt_' + degree_name[i]
+for i in range(0, 5):
+    Cell_file_path_glob_add_degree = Cell_file_path_glob + '/' + folder_index_list[i]
+    gt_file_path_glob_add_degree = GT_file_path_glob + '/' + folder_index_list[i]
 
     cell_full_txt_file_path.append(glob.glob(os.path.join(Cell_file_path_glob_add_degree, "*_filtered.txt")))
     gt_full_txt_file_path.append(glob.glob(os.path.join(gt_file_path_glob_add_degree, "*_filtered.txt")))
 
-# gt_full_txt_file_path.append('/Users/jaeuklee/Downloads/7월27일_분석완/ublox_neo-m8n/CLBX-4A-21_1.2_0_1627436443_0/15min fix(5 div)/1/1_filtered.txt')
+# cell_full_txt_file_path.append(glob.glob(os.path.join("/Users/jaeuklee/Downloads/8월18일_분석완/CELL", "*_filtered.txt")))
+# gt_full_txt_file_path.append(glob.glob(os.path.join("/Users/jaeuklee/Downloads/8월18일_분석완/GT", "*_filtered.txt")))
+
+
+print("final path list")
 print(gt_full_txt_file_path)
 print(cell_full_txt_file_path)
 
@@ -338,6 +355,10 @@ for cell_path, gt_path in zip(cell_full_txt_file_path, gt_full_txt_file_path):
     analysis_data_file.write("Mean of HDOP [Cell] = %.3f \n" % cell_hdop_mean)
 
     nmea2d.NMEA_2d_plot_main(gt_path[0], cell_path[0])
+
+# nmea2d.ECEF_2D_save_only_cell_3min('/Users/jaeuklee/Downloads/8월18일_분석완/CELL_only_human/dual/human_dual._filtered.txt')
+# nmea2d.ECEF_2D_save_only_cell_3min('/Users/jaeuklee/Downloads/8월18일_분석완/CELL_only_human/single/human_single._filtered.txt')
+
 
 # cell_path = []
 # gt_path =[]

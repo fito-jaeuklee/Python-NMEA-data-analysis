@@ -5,13 +5,107 @@ import os
 from tkinter import filedialog
 import os
 import glob
-
-all_file_path_glob = filedialog.askdirectory()
-print(all_file_path_glob)
+import re
 
 
-class GGA_toggle_flag:
-    pass
+fix_mode_mapping_dict = {'N': 0, 'E': 1, 'F': 2, 'R': 3}
+
+# all_file_path_glob = filedialog.askdirectory()
+# print(all_file_path_glob)
+
+
+def extract_position_fix_mode_from_RMC(one_chuck_data):
+    find_berry = 'RMC'
+    select_i = 0
+
+    print(one_chuck_data)
+    # berries = [i for i in range(len(one_chuck_data)) if find_berry in one_chuck_data[i]]
+
+    for i in range(len(one_chuck_data)):
+        if find_berry in one_chuck_data[i]:
+            print("find ", i)
+            select_i = i
+        else:
+            print("RMC not exist ", i)
+
+    print("resultlll", one_chuck_data[select_i])
+
+    if find_berry in one_chuck_data[select_i]:
+        b_list = one_chuck_data[select_i].split(",")
+        print(b_list)
+        print(b_list[len(b_list) - 2])
+        return fix_mode_mapping_dict[b_list[len(b_list) - 2]]
+    else:
+        print("not RMC return 0")
+        return 0
+
+
+def chksum_nmea(sentence):
+    # This is a string, will need to convert it to hex for
+    # proper comparsion below
+    cksum = sentence[len(sentence) - 2:]
+
+    # String slicing: Grabs all the characters
+    # between '$' and '*' and nukes any lingering
+    # newline or CRLF
+    chksumdata = re.sub("(\n|\r\n)", "", sentence[sentence.find("$") + 1:sentence.find("*")])
+
+    # Initializing our first XOR value
+    csum = 0
+
+    # For each char in chksumdata, XOR against the previous
+    # XOR'd char.  The final XOR of the last char will be our
+    # checksum to verify against the checksum we sliced off
+    # the NMEA sentence
+
+    for c in chksumdata:
+        # XOR'ing value of csum against the next char in line
+        # and storing the new XOR value in csum
+        csum ^= ord(c)
+
+    # Do we have a validated sentence?
+    try:
+        if hex(csum) == hex(int(cksum, 16)):
+           return True
+    except:
+        pass
+
+    return False
+
+
+def erase_ubx_gp_dummy_data_and_checksum(filepath):
+    print(filepath)
+    decoded_data_list = []
+    decode_error_cnt = 0
+    checksum_error_cnt = 0
+
+    for path in filepath:
+        print("jaeuk path", path)
+        with open(path, 'rb') as f:
+            barr = f.readlines()
+            for x in barr:
+                try:
+                    str_nmea_data = x.decode('utf-8')
+                    decoded_data_list.append(str_nmea_data)
+                except:
+                    decode_error_cnt += 1
+        print("barr", barr)
+        print("decoded = ", decoded_data_list)
+
+    with open(path, "w") as new_file:
+        for one_line_nmea in decoded_data_list:
+            # new_file.write(one_line_nmea)
+            print(one_line_nmea[:-1])
+            checksum_rtn = chksum_nmea(one_line_nmea[:-1])
+            if checksum_rtn:
+                new_file.write(one_line_nmea)
+            elif not checksum_rtn:
+                checksum_error_cnt += 1
+            else:
+                print("Not either True or False")
+
+    print("Decode error count = ", decode_error_cnt)
+    print("Checksum error count = ", checksum_error_cnt)
 
 
 # GGA로 시작되는 리스트의 위치 찾기
@@ -39,16 +133,23 @@ def index_for_GGA(sentence_list):
     return index_cnt_list
 
 
-def rtn_total_chunk_data():
+def rtn_total_chunk_data(all_file_path_glob):
     check_flag = 0
     list_add_flag = 0
     one_chunk_data = []
     total_chunk_data = []
 
-    gp_file_path = glob.glob\
-        (os.path.join(all_file_path_glob, "*.gp"))
+    gp_file_path = glob.glob(os.path.join(all_file_path_glob, "*.gp"))
 
     print(gp_file_path)
+    if len(gp_file_path) == 0:
+        print("Ublox file.")
+        gp_file_path = glob.glob(os.path.join(all_file_path_glob, "*.ubx"))
+    else:
+        print("GP file")
+
+    # # NMEA data checksum & save re-define dat
+    erase_ubx_gp_dummy_data_and_checksum(gp_file_path)
     # gp_file_path_list = gp_file_path[0].split('/')
     # gp_file_path_len = len(gp_file_path_list)
     # gp_file_name = gp_file_path_list[gp_file_path_len - 1]
@@ -56,6 +157,7 @@ def rtn_total_chunk_data():
     for path in gp_file_path:
         with open(path, 'rb') as f:
             barr = f.readlines()
+            print(barr)
             print(barr[0])
             if 'start' in str(barr[0]):
                 print("Dummy(~~~~start) data in this file")
@@ -67,7 +169,7 @@ def rtn_total_chunk_data():
             #         str_nmea_data = x.decode('utf-8')
             #     except:
             #         pass
-            check_flag +=1
+            check_flag += 1
             print(check_flag)
             str_nmea_data = [x.decode('utf-8') for x in barr]
 
@@ -87,6 +189,9 @@ def rtn_total_chunk_data():
                 # print(total_chunk_data)
 
         return total_chunk_data, gp_file_path
+
+# rtn_total_chunk_data()
+# erase_ubx_gp_dummy_data_and_checksum(all_file_path_glob)
 
 
 

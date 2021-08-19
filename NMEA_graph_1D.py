@@ -40,25 +40,26 @@ def NMEA_plot_and_save_png(filtered_fliepath):
     plt.rcParams["figure.figsize"] = (18, 12)
     plt.subplot(5, 1, 1)
     plt.plot(dates, altitude, label="GPS altitude(m)", color='red')
-    plt.legend(loc="upper left")
+    plt.legend(loc='best')
 
     plt.subplot(5, 1, 2)
-    plt.plot(dates, fix_mode, label="Fix mode (1 = Fix not available 2 = 2D 3 = 3D)", color="blue")
-    plt.legend(loc="upper left")
+    plt.plot(dates, fix_mode, label=
+    "# N(0) =  No position fix  /  E(1) = Dead reckoning fix  /  F(2) = RTK float  /  R(3) = RTK fixed", color="blue")
+    plt.legend(loc='best')
 
     plt.subplot(5, 1, 3)
     plt.plot(dates, number_of_sat_in_use, label="Number of satellites in use", color='purple')
     plt.plot(dates, sat_view, label="Satellites of view", color="magenta")
-    plt.legend(loc="upper left")
+    plt.legend(loc='best')
 
     plt.subplot(5, 1, 4)
     plt.plot(dates, hdop, label="HDOP", color="salmon")
-    plt.legend(loc="upper left")
+    plt.legend(loc='best')
 
     plt.subplot(5, 1, 5)
     # plt.title("Dilution of precision")
     plt.plot(dates, speed, label="Speed(km/h)", color="salmon")
-    plt.legend(loc="upper left")
+    plt.legend(loc='best')
 
     plt.subplots_adjust(bottom=0.2)
     plt.xticks(rotation=45)
@@ -75,5 +76,7 @@ def NMEA_plot_and_save_png(filtered_fliepath):
     # plt.tight_layout()
     plt.suptitle("Fitogether GPS Test : NMEA data plot", fontsize=20)
     plt.savefig(filtered_fliepath[:-3] + '.png', dpi=300)
+
+    plt.close()
     print("1D graph save DONE!")
     # plt.show()
