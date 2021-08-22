@@ -135,28 +135,20 @@ def ECEF_2D_plotting(GT_X, GT_Y, X, Y, cell_path):
     print("Cell length =", len(X))
     print("GT length = ", len(GT_X))
 
-    plt.plot(X[200:-200], Y[200:-200], 'r-o', label='GT')
-    plt.plot(GT_X[40:-40], GT_Y[40:-40], 'b-o', label='CELL')
+    plt.plot(X[50:-50], Y[50:-50], 'r-o', label='GT')
+    plt.plot(GT_X[100:-100], GT_Y[100:-100], 'b-o', label='CELL')
+    print(int(min(X)) - 1, int(max(X)) + 1)
+    plt.xticks([i for i in range(int(min(X)) - 3, int(max(X)) + 3, 1)])
+    plt.yticks([i for i in range(int(min(Y)) - 3, int(max(Y)) + 3, 1)])
     plt.legend()
 
-    major_ticks = np.arange(min(min(X), min(X)), max(max(Y), max(Y)), 5)
-    minor_ticks = np.arange(min(min(X), min(Y)), max(max(X), max(Y)), 0.1)
+    plt.grid(True)
 
-    plt.set_xticks(major_ticks)
-    plt.set_xticks(minor_ticks, minor=True)
-    plt.set_yticks(major_ticks)
-    plt.set_yticks(minor_ticks, minor=True)
-
-    plt.grid(which='both')
-    plt.grid(which='minor', alpha=0.2)
-    plt.grid(which='major', alpha=0.5)
-
-    plt.grid(which='both')
-    plt.grid(which='major', alpha=1)
     plt.axis('equal')
     plt.savefig(cell_path[:-3] + '_2d_position' + '.png', dpi=300)
     print("2D position graph DONE!")
     plt.show()
+    plt.close()
 
 
 def ECEF_2D_save_only_cell_3min(cell_path):

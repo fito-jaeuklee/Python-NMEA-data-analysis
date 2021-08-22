@@ -191,12 +191,12 @@ def save_lla_coords_and_speed_from_txt(filepath):
     hdop_mean = hdop_sum / len(lla_coords)
 
     for alt in lla_coords:
-        print("asdasdsdfasdfkhjl", alt[2])
         sum_alt_diff += math.pow(alt[2] - alt_mean, 2)
     alt_variance = sum_alt_diff / len(lla_coords)
+    alt_std_deviation = math.sqrt(alt_variance)
     print(alt_variance)
 
-    return lla_coords, speed_list, alt_variance, sat_used_mean, hdop_mean
+    return lla_coords, speed_list, alt_std_deviation, sat_used_mean, hdop_mean
 
 
 def compare_evaluation_value_gt_cell(dict_gt_cell, GT_file_path_glob, Cell_file_path_glob):
@@ -292,10 +292,10 @@ print(GT_file_path_glob)
 print(Cell_file_path_glob)
 
 # Extract test degree from
-folder_index_list = ["0", "30", "60", "90", "float"]
+folder_index_list = ["60", '90']
 
 
-for i in range(0, 5):
+for i in range(0, len(folder_index_list)):
     Cell_file_path_glob_add_degree = Cell_file_path_glob + '/' + folder_index_list[i]
     gt_file_path_glob_add_degree = GT_file_path_glob + '/' + folder_index_list[i]
 
@@ -323,7 +323,7 @@ for cell_path, gt_path in zip(cell_full_txt_file_path, gt_full_txt_file_path):
 
     print(len(dict_key_gt_time_list_matched_cell_time_list_index))
 
-    gt_vs_cell_x, gt_vs_cell_y, gt_vs_cell_speed, cell_altitude_var, cell_sat_used_mean, cell_hdop_mean = \
+    gt_vs_cell_x, gt_vs_cell_y, gt_vs_cell_speed, cell_altitude_std, cell_sat_used_mean, cell_hdop_mean = \
         compare_evaluation_value_gt_cell(dict_key_gt_time_list_matched_cell_time_list_index, gt_path[0], cell_path[0])
 
     position_mean_error, speed_mean_error = calculate_xy_position_and_speed_mean_error(gt_vs_cell_x, gt_vs_cell_y,
@@ -337,7 +337,7 @@ for cell_path, gt_path in zip(cell_full_txt_file_path, gt_full_txt_file_path):
     print()
     print("X-Y position difference mean(Meters) = ", position_mean_error)
     print("Speed difference mean(km/h) = ", speed_mean_error)
-    print("Variance of altitude [Test cell] = ", cell_altitude_var)
+    print("Standard deviation of altitude [Test cell] = ", cell_altitude_std)
     print("Mean of satellites used number [Test cell] =", cell_sat_used_mean)
     print("Mean of HDOP [Test cell] = ", cell_hdop_mean)
 
@@ -348,7 +348,7 @@ for cell_path, gt_path in zip(cell_full_txt_file_path, gt_full_txt_file_path):
     analysis_data_file.write("\n")
     analysis_data_file.write("Speed root-mean square difference(RMSD) = %.3f \n" % speed_mean_error)
     analysis_data_file.write("\n")
-    analysis_data_file.write("Variance of altitude [Cell] = %.3f \n" % cell_altitude_var)
+    analysis_data_file.write("Standard deviation of altitude [Cell] = %.3f \n" % cell_altitude_std)
     analysis_data_file.write("\n")
     analysis_data_file.write("Mean of satellites used number [Cell] = %.3f \n" % cell_sat_used_mean)
     analysis_data_file.write("\n")

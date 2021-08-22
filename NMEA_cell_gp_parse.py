@@ -8,12 +8,14 @@ import glob
 import re
 
 
-fix_mode_mapping_dict = {'N': 0, 'E': 1, 'F': 2, 'R': 3}
+
+fix_mode_mapping_dict = {'N': 0, 'E': 1, 'F': 2, 'R': 3, 'D': 0, 'A': 1, '': 0}
 
 # all_file_path_glob = filedialog.askdirectory()
 # print(all_file_path_glob)
 
 
+# ex) $GNRMC,074730.70,A,3731.05452,N,12658.18911,E,0.165,,190821,,,D,V*18
 def extract_position_fix_mode_from_RMC(one_chuck_data):
     find_berry = 'RMC'
     select_i = 0
@@ -37,6 +39,32 @@ def extract_position_fix_mode_from_RMC(one_chuck_data):
         return fix_mode_mapping_dict[b_list[len(b_list) - 2]]
     else:
         print("not RMC return 0")
+        return 0
+
+
+# ex) $PUBX,00,074730.60,3731.05453,N,12658.18909,E,22.028,D3,5.1,15,0.351,0.00,0.090,1.6,3.99,7.40,6.41,4,0,0*56
+def extract_altitude_satellite_num_from_PUBX(one_chuck_data):
+    find_berry = 'PUBX,00'
+    select_i = 0
+
+    print(one_chuck_data)
+    # berries = [i for i in range(len(one_chuck_data)) if find_berry in one_chuck_data[i]]
+
+    for i in range(len(one_chuck_data)):
+        if find_berry in one_chuck_data[i]:
+            print("find ", i)
+            select_i = i
+        else:
+            print("PUBX not exist ", i)
+
+    print("resultlll", one_chuck_data[select_i])
+
+    if find_berry in one_chuck_data[select_i]:
+        b_list = one_chuck_data[select_i].split(",")
+        print("pubx = ", b_list)
+        return b_list[7], b_list[18]
+    else:
+        print("not PUBX return 0")
         return 0
 
 
@@ -78,6 +106,7 @@ def erase_ubx_gp_dummy_data_and_checksum(filepath):
     decoded_data_list = []
     decode_error_cnt = 0
     checksum_error_cnt = 0
+    carriage_rtn_value_set = 0
 
     for path in filepath:
         print("jaeuk path", path)
@@ -92,11 +121,22 @@ def erase_ubx_gp_dummy_data_and_checksum(filepath):
         print("barr", barr)
         print("decoded = ", decoded_data_list)
 
+    # ubx 는 -1
+    # gp 파일 일때는 -2 로
+    # one_line_nmea[:()]
+
+    if ".ubx" in path:
+        print(".UBX here")
+        carriage_rtn_value_set = -2
+    else:
+        print(".GP here")
+        carriage_rtn_value_set = -2
+
     with open(path, "w") as new_file:
         for one_line_nmea in decoded_data_list:
             # new_file.write(one_line_nmea)
-            print(one_line_nmea[:-1])
-            checksum_rtn = chksum_nmea(one_line_nmea[:-1])
+            # print(one_line_nmea[:carriage_rtn_value_set])
+            checksum_rtn = chksum_nmea(one_line_nmea[:carriage_rtn_value_set])
             if checksum_rtn:
                 new_file.write(one_line_nmea)
             elif not checksum_rtn:
@@ -149,7 +189,7 @@ def rtn_total_chunk_data(all_file_path_glob):
         print("GP file")
 
     # # NMEA data checksum & save re-define dat
-    erase_ubx_gp_dummy_data_and_checksum(gp_file_path)
+    # erase_ubx_gp_dummy_data_and_checksum(gp_file_path)
     # gp_file_path_list = gp_file_path[0].split('/')
     # gp_file_path_len = len(gp_file_path_list)
     # gp_file_name = gp_file_path_list[gp_file_path_len - 1]

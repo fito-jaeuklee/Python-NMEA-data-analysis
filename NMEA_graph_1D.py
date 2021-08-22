@@ -17,6 +17,7 @@ def NMEA_plot_and_save_png(filtered_fliepath):
         barr = f.readlines()
         str_nmea_data = [x.decode('utf-8') for x in barr]
 
+    print()
     print(str_nmea_data[0])
     nmea_data_split_list = str_nmea_data[0].split(' ')
     print(nmea_data_split_list)
@@ -44,12 +45,12 @@ def NMEA_plot_and_save_png(filtered_fliepath):
 
     plt.subplot(5, 1, 2)
     plt.plot(dates, fix_mode, label=
-    "# N(0) =  No position fix  /  E(1) = Dead reckoning fix  /  F(2) = RTK float  /  R(3) = RTK fixed", color="blue")
+    "# N(0) =  No position fix  /  E(1) = Dead reckoning fix  /  F(2) = RTK float  /  R(3) = RTK fixed \n M9 = D(0) : differential /  A(1) : autonomous", color="blue")
     plt.legend(loc='best')
 
     plt.subplot(5, 1, 3)
     plt.plot(dates, number_of_sat_in_use, label="Number of satellites in use", color='purple')
-    plt.plot(dates, sat_view, label="Satellites of view", color="magenta")
+    # plt.plot(dates, sat_view, label="Satellites of view", color="magenta")
     plt.legend(loc='best')
 
     plt.subplot(5, 1, 4)
@@ -74,7 +75,11 @@ def NMEA_plot_and_save_png(filtered_fliepath):
 
     plt.locator_params(axis='x', nbins=50)
     # plt.tight_layout()
-    plt.suptitle("Fitogether GPS Test : NMEA data plot", fontsize=20)
+    # /Users/jaeuklee/Downloads/8월19일_분석완_second_round/CLBY-1A-11-ant-0deg/0
+
+    path_split = filtered_fliepath.split("/")
+
+    plt.suptitle("Fitogether GPS Test : NMEA data plot\n %s  degree : %s" % (path_split[5], path_split[6]), fontsize=20)
     plt.savefig(filtered_fliepath[:-3] + '.png', dpi=300)
 
     plt.close()
