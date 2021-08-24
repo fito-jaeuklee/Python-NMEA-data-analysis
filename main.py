@@ -11,7 +11,7 @@ import NMEA_cell_gp_parse
 import NMEA_graph_1D
 from tkinter import filedialog
 
-folder_degree_name = ["60", "90"]
+folder_degree_name = ['0']
 #, "30", "60", '90']
 total_file_path_glob_add_degree = []
 
@@ -41,10 +41,10 @@ for file_path in total_file_path_glob_add_degree:
     # print(total_chunk_data_one_file)
     print(len(total_chunk_data_one_file))
 
-    for chuck_buf in total_chunk_data_one_file:
-        fix_position_list.append(NMEA_cell_gp_parse.extract_position_fix_mode_from_RMC(chuck_buf))
-        altitude_high_resolution_list.append(NMEA_cell_gp_parse.extract_altitude_satellite_num_from_PUBX(chuck_buf)[0])
-        satellites_num_pubx_list.append(NMEA_cell_gp_parse.extract_altitude_satellite_num_from_PUBX(chuck_buf)[1])
+    # for chuck_buf in total_chunk_data_one_file:
+    #     fix_position_list.append(NMEA_cell_gp_parse.extract_position_fix_mode_from_RMC(chuck_buf))
+    #     altitude_high_resolution_list.append(NMEA_cell_gp_parse.extract_altitude_satellite_num_from_PUBX(chuck_buf)[0])
+    #     satellites_num_pubx_list.append(NMEA_cell_gp_parse.extract_altitude_satellite_num_from_PUBX(chuck_buf)[1])
 
     print("Fix position index list = ", fix_position_list)
     print("alti resol = ", altitude_high_resolution_list, satellites_num_pubx_list)
@@ -62,13 +62,13 @@ for file_path in total_file_path_glob_add_degree:
         one_chunk_buf.append(my_gps.latitude)
         one_chunk_buf.append(my_gps.longitude)
 
-        one_chunk_buf.append(altitude_high_resolution_list[cnt])
-        one_chunk_buf.append(fix_position_list[cnt])
-        one_chunk_buf.append(satellites_num_pubx_list[cnt])
+        # one_chunk_buf.append(altitude_high_resolution_list[cnt])
+        # one_chunk_buf.append(fix_position_list[cnt])
+        # one_chunk_buf.append(satellites_num_pubx_list[cnt])
 
-        # one_chunk_buf.append(my_gps.altitude)
-        # one_chunk_buf.append(my_gps.fix_type)
-        # one_chunk_buf.append(my_gps.satellites_in_use)
+        one_chunk_buf.append(my_gps.altitude)
+        one_chunk_buf.append(my_gps.fix_type)
+        one_chunk_buf.append(my_gps.satellites_in_use)
 
         one_chunk_buf.append(my_gps.satellites_in_view)
         one_chunk_buf.append(my_gps.hdop)

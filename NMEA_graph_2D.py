@@ -107,7 +107,7 @@ def make_lla_list(str_nmea_data):
     return lla_coords
 
 
-def lla_to_ecef_list(lla_list):
+def lla_to_ecef_list(lla_list, cell_path):
     x_list = []
     y_list = []
     z_list = []
@@ -121,10 +121,13 @@ def lla_to_ecef_list(lla_list):
         x_list.append(x)
         y_list.append(y)
 
-    # new_x_list = [x - x_list[0] for x in x_list]
-    # new_y_list = [y - y_list[0] for y in y_list]
-
-    # print(x_list, y_list)
+    # Save x, y position list for debug
+    if True:
+        pos_data_file = open(cell_path[0][:-13] + '_x_y_position_data' + '.txt', 'w')
+        for i in range(0, len(x_list)):
+            pos_data_file.write("%s %s" % (x_list[i], y_list[i]))
+            pos_data_file.write("\n")
+        pos_data_file.close()
 
     return x_list, y_list
 
@@ -175,7 +178,7 @@ def ECEF_2D_save_only_cell_3min(cell_path):
     str_nmea_data = ECEF_2D_data_extract(cell_path)
     lla_list = make_lla_list(str_nmea_data)
     print(len(lla_list))
-    x_list, y_list = lla_to_ecef_list(lla_list)
+    x_list, y_list = lla_to_ecef_list(lla_list, cell_path)
     print("0000", len(x_list), len(y_list))
 
     sum_error_distance = 0
@@ -230,7 +233,7 @@ def NMEA_2d_plot_main(gt_path, cell_path):
     str_nmea_data = ECEF_2D_data_extract(cell_path)
     lla_list = make_lla_list(str_nmea_data)
     print(len(lla_list))
-    x_list, y_list = lla_to_ecef_list(lla_list)
+    x_list, y_list = lla_to_ecef_list(lla_list, cell_path)
     print("0000", len(x_list), len(y_list))
 
     # ----------- RTK(GT) data--------------
@@ -239,7 +242,7 @@ def NMEA_2d_plot_main(gt_path, cell_path):
     GT_nmea_data = ECEF_2D_data_extract(gt_path)
     GT_lla_list = make_lla_list(GT_nmea_data)
     print(len(GT_lla_list))
-    GT_x_list, GT_y_list = lla_to_ecef_list(GT_lla_list)
+    GT_x_list, GT_y_list = lla_to_ecef_list(GT_lla_list, cell_path)
 
     print("1111", len(GT_x_list), len(GT_y_list))
 

@@ -4,14 +4,19 @@ import NMEA_graph_2D as nmea2d
 import math
 import glob
 import os
+import numpy as np
 
 # 2d position error(mean) / speed error(mean) / test time / portion of used data
 # 7140 / 15343
 # 데이터가 없는 시간 계산 알고리즘
 # 시간을 먼저 만들어 놓고 채워 넣어서 없는 부분을 찾아(곱하기) 계산
 
-degree_name = ['0', '30', '60', '90']
-divide_5_each_3min = ['1', '2', '3', '4', '5']
+
+# Extract test degree from
+folder_index_list = ['60', '90']
+
+offset_x = 0
+offset_y = 0
 
 
 def decision_start_time_end_time_extract_from_txt(GT_txt_path, cell_txt_path):
@@ -224,8 +229,8 @@ def compare_evaluation_value_gt_cell(dict_gt_cell, GT_file_path_glob, Cell_file_
 
     print("lla length check = ", len(gt_lla_coords), len(cell_lla_coords))
 
-    gt_ecef_list_x, gt_ecef_list_y = nmea2d.lla_to_ecef_list(gt_lla_coords)
-    cell_ecef_list_x, cell_ecef_list_y = nmea2d.lla_to_ecef_list(cell_lla_coords)
+    gt_ecef_list_x, gt_ecef_list_y = nmea2d.lla_to_ecef_list(gt_lla_coords, cell_path)
+    cell_ecef_list_x, cell_ecef_list_y = nmea2d.lla_to_ecef_list(cell_lla_coords, cell_path)
 
     print("ecef length check = ", len(gt_ecef_list), len(cell_ecef_list))
 
@@ -249,10 +254,47 @@ def compare_evaluation_value_gt_cell(dict_gt_cell, GT_file_path_glob, Cell_file_
             gt_vs_cell_y.append([gt_ecef_list_y[i], cell_ecef_list_y[dict_gt_cell[i]]])
             gt_vs_cell_speed.append([gt_speed_list[i], cell_speed_list[dict_gt_cell[i]]])
 
-    print("VS", gt_vs_cell_x, gt_vs_cell_y, gt_vs_cell_speed)
+    #print("VS", gt_vs_cell_x, gt_vs_cell_y, gt_vs_cell_speed)
+    print("VS", gt_vs_cell_x)
     print("VS length = ", len(gt_vs_cell_x), len(gt_vs_cell_y), len(gt_vs_cell_speed))
 
-    return gt_vs_cell_x, gt_vs_cell_y, gt_vs_cell_speed, cell_altitude_var, cell_sat_used_mean, cell_hdop_mean
+    avr=np.average(gt_vs_cell_x[:][0])
+    print(avr)
+    x_sum=0
+    x_gt_sum=0
+    x_cell_sum=0
+    y_gt_sum=0
+    y_cell_sum=0
+
+    for i in range(0, len(gt_vs_cell_x)):
+        x_gt_sum += gt_vs_cell_x[i][0]
+        x_cell_sum += gt_vs_cell_x[i][1]
+        y_gt_sum += gt_vs_cell_y[i][0]
+        y_cell_sum += gt_vs_cell_y[i][1]
+
+    x_gt_avg = x_gt_sum / len(gt_vs_cell_x)
+    x_cell_avg = x_cell_sum / len(gt_vs_cell_x)
+    y_gt_avg = y_gt_sum / len(gt_vs_cell_x)
+    y_cell_avg = y_cell_sum / len(gt_vs_cell_x)
+    print(x_gt_avg)
+    print(x_cell_avg)
+    print(y_gt_avg)
+    print(y_cell_avg)
+
+    for i in range(0, len(gt_vs_cell_x)):
+        gt_vs_cell_x[i][0]= gt_vs_cell_x[i][0]-x_gt_avg
+        gt_vs_cell_x[i][1]= gt_vs_cell_x[i][1]-x_cell_avg
+        gt_vs_cell_y[i][0]= gt_vs_cell_y[i][0]-y_gt_avg
+        gt_vs_cell_y[i][1]= gt_vs_cell_y[i][1]-y_cell_avg
+
+    offset_x= x_gt_avg -x_cell_avg
+    offset_y = y_gt_avg - y_cell_avg
+    print(offset_x)
+    print(offset_y)
+
+    OFFSET_xy= math.sqrt(math.pow(offset_x, 2) + math.pow(offset_y, 2))
+    print(OFFSET_xy)
+    return OFFSET_xy,gt_vs_cell_x, gt_vs_cell_y, gt_vs_cell_speed, cell_altitude_var, cell_sat_used_mean, cell_hdop_mean
 
 
 def calculate_xy_position_and_speed_mean_error(gt_vs_cell_x, gt_vs_cell_y, gt_vs_cell_speed):
@@ -260,8 +302,9 @@ def calculate_xy_position_and_speed_mean_error(gt_vs_cell_x, gt_vs_cell_y, gt_vs
     speed_diff_sum = 0
     data_len = len(gt_vs_cell_speed)
 
-    print(gt_vs_cell_x[0], gt_vs_cell_x[0][1], gt_vs_cell_x[0][0])
-    print()
+    #print(gt_vs_cell_x[0], gt_vs_cell_x[0][1], gt_vs_cell_x[0][0])
+
+    print('chulwoo park2')
 
     for i in range(0, len(gt_vs_cell_x)):
         print(i)
@@ -290,9 +333,6 @@ cell_full_txt_file_path = []
 print("GLOB")
 print(GT_file_path_glob)
 print(Cell_file_path_glob)
-
-# Extract test degree from
-folder_index_list = ["60", '90']
 
 
 for i in range(0, len(folder_index_list)):
@@ -323,36 +363,38 @@ for cell_path, gt_path in zip(cell_full_txt_file_path, gt_full_txt_file_path):
 
     print(len(dict_key_gt_time_list_matched_cell_time_list_index))
 
-    gt_vs_cell_x, gt_vs_cell_y, gt_vs_cell_speed, cell_altitude_std, cell_sat_used_mean, cell_hdop_mean = \
-        compare_evaluation_value_gt_cell(dict_key_gt_time_list_matched_cell_time_list_index, gt_path[0], cell_path[0])
-
-    position_mean_error, speed_mean_error = calculate_xy_position_and_speed_mean_error(gt_vs_cell_x, gt_vs_cell_y,
-                                                                                       gt_vs_cell_speed)
-
-    print("-----------------", cell_path[0], "------------------")
-    print("Test start time =", start_time)
-    print("Test end time =", end_time)
-    print("Total estimation time = ", end_time - start_time)
-    print("Time used percentage = ", (len(gt_time_list) - not_match_num) / len(gt_time_list))
-    print()
-    print("X-Y position difference mean(Meters) = ", position_mean_error)
-    print("Speed difference mean(km/h) = ", speed_mean_error)
-    print("Standard deviation of altitude [Test cell] = ", cell_altitude_std)
-    print("Mean of satellites used number [Test cell] =", cell_sat_used_mean)
-    print("Mean of HDOP [Test cell] = ", cell_hdop_mean)
-
-    print("-------------------------------------")
-    print("Save TXT data & 2D position plot")
-    analysis_data_file = open(cell_path[0][:-13] + '_analysis_data' + '.txt', 'w')
-    analysis_data_file.write("X-Y position mean absolute error(MAE) = %.3f \n" % position_mean_error)
-    analysis_data_file.write("\n")
-    analysis_data_file.write("Speed root-mean square difference(RMSD) = %.3f \n" % speed_mean_error)
-    analysis_data_file.write("\n")
-    analysis_data_file.write("Standard deviation of altitude [Cell] = %.3f \n" % cell_altitude_std)
-    analysis_data_file.write("\n")
-    analysis_data_file.write("Mean of satellites used number [Cell] = %.3f \n" % cell_sat_used_mean)
-    analysis_data_file.write("\n")
-    analysis_data_file.write("Mean of HDOP [Cell] = %.3f \n" % cell_hdop_mean)
+    # position_OFFSET, gt_vs_cell_x, gt_vs_cell_y, gt_vs_cell_speed, cell_altitude_std, cell_sat_used_mean, cell_hdop_mean = \
+    #     compare_evaluation_value_gt_cell(dict_key_gt_time_list_matched_cell_time_list_index, gt_path[0], cell_path[0])
+    #
+    # position_mean_error, speed_mean_error = calculate_xy_position_and_speed_mean_error(gt_vs_cell_x, gt_vs_cell_y,
+    #                                                                                    gt_vs_cell_speed)
+    #
+    # print("-----------------", cell_path[0], "------------------")
+    # print("Test start time =", start_time)
+    # print("Test end time =", end_time)
+    # print("Total estimation time = ", end_time - start_time)
+    # print("Time used percentage = ", (len(gt_time_list) - not_match_num) / len(gt_time_list))
+    # print()
+    # print("X-Y position difference mean(Meters) = ", position_mean_error)
+    # print("Speed difference mean(km/h) = ", speed_mean_error)
+    # print("Standard deviation of altitude [Test cell] = ", cell_altitude_std)
+    # print("Mean of satellites used number [Test cell] =", cell_sat_used_mean)
+    # print("Mean of HDOP [Test cell] = ", cell_hdop_mean)
+    #
+    # print("-------------------------------------")
+    # print("Save TXT data & 2D position plot")
+    # analysis_data_file = open(cell_path[0][:-13] + '_analysis_data' + '.txt', 'w')
+    # analysis_data_file.write("X-Y position mean absolute error(MAE) = %.3f \n" % position_mean_error)
+    # analysis_data_file.write("\n")
+    # analysis_data_file.write("X-Y position OFFSET = %.3f \n" % position_OFFSET)
+    # analysis_data_file.write("\n")
+    # analysis_data_file.write("Speed root-mean square difference(RMSD) = %.3f \n" % speed_mean_error)
+    # analysis_data_file.write("\n")
+    # analysis_data_file.write("Standard deviation of altitude [Cell] = %.3f \n" % cell_altitude_std)
+    # analysis_data_file.write("\n")
+    # analysis_data_file.write("Mean of satellites used number [Cell] = %.3f \n" % cell_sat_used_mean)
+    # analysis_data_file.write("\n")
+    # analysis_data_file.write("Mean of HDOP [Cell] = %.3f \n" % cell_hdop_mean)
 
     nmea2d.NMEA_2d_plot_main(gt_path[0], cell_path[0])
 
