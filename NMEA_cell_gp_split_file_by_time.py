@@ -5,13 +5,15 @@ import re
 import NMEA_cell_gp_parse
 
 # 각각 0, 30, 60, 90 도
-time_divide_by_deg = ["005920.00,010350.00"]
+time_divide_by_deg = ["005920.00,010350.00",
+                      "164800.00,165500.00",
+                      "165800.00,170500.00"]
 
 # "164800.00,165500.00",
 # "165800.00,170500.00"]
 #'60', '90']
 
-degree_list = ["0"]
+degree_list = ["0", "30", "60"]
 
 
 def create_each_degree_directory(base_dir):

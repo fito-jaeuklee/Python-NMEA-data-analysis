@@ -363,38 +363,38 @@ for cell_path, gt_path in zip(cell_full_txt_file_path, gt_full_txt_file_path):
 
     print(len(dict_key_gt_time_list_matched_cell_time_list_index))
 
-    # position_OFFSET, gt_vs_cell_x, gt_vs_cell_y, gt_vs_cell_speed, cell_altitude_std, cell_sat_used_mean, cell_hdop_mean = \
-    #     compare_evaluation_value_gt_cell(dict_key_gt_time_list_matched_cell_time_list_index, gt_path[0], cell_path[0])
-    #
-    # position_mean_error, speed_mean_error = calculate_xy_position_and_speed_mean_error(gt_vs_cell_x, gt_vs_cell_y,
-    #                                                                                    gt_vs_cell_speed)
-    #
-    # print("-----------------", cell_path[0], "------------------")
-    # print("Test start time =", start_time)
-    # print("Test end time =", end_time)
-    # print("Total estimation time = ", end_time - start_time)
-    # print("Time used percentage = ", (len(gt_time_list) - not_match_num) / len(gt_time_list))
-    # print()
-    # print("X-Y position difference mean(Meters) = ", position_mean_error)
-    # print("Speed difference mean(km/h) = ", speed_mean_error)
-    # print("Standard deviation of altitude [Test cell] = ", cell_altitude_std)
-    # print("Mean of satellites used number [Test cell] =", cell_sat_used_mean)
-    # print("Mean of HDOP [Test cell] = ", cell_hdop_mean)
-    #
-    # print("-------------------------------------")
-    # print("Save TXT data & 2D position plot")
-    # analysis_data_file = open(cell_path[0][:-13] + '_analysis_data' + '.txt', 'w')
-    # analysis_data_file.write("X-Y position mean absolute error(MAE) = %.3f \n" % position_mean_error)
-    # analysis_data_file.write("\n")
-    # analysis_data_file.write("X-Y position OFFSET = %.3f \n" % position_OFFSET)
-    # analysis_data_file.write("\n")
-    # analysis_data_file.write("Speed root-mean square difference(RMSD) = %.3f \n" % speed_mean_error)
-    # analysis_data_file.write("\n")
-    # analysis_data_file.write("Standard deviation of altitude [Cell] = %.3f \n" % cell_altitude_std)
-    # analysis_data_file.write("\n")
-    # analysis_data_file.write("Mean of satellites used number [Cell] = %.3f \n" % cell_sat_used_mean)
-    # analysis_data_file.write("\n")
-    # analysis_data_file.write("Mean of HDOP [Cell] = %.3f \n" % cell_hdop_mean)
+    position_OFFSET, gt_vs_cell_x, gt_vs_cell_y, gt_vs_cell_speed, cell_altitude_std, cell_sat_used_mean, cell_hdop_mean = \
+        compare_evaluation_value_gt_cell(dict_key_gt_time_list_matched_cell_time_list_index, gt_path[0], cell_path[0])
+
+    position_mean_error, speed_mean_error = calculate_xy_position_and_speed_mean_error(gt_vs_cell_x, gt_vs_cell_y,
+                                                                                       gt_vs_cell_speed)
+
+    print("-----------------", cell_path[0], "------------------")
+    print("Test start time =", start_time)
+    print("Test end time =", end_time)
+    print("Total estimation time = ", end_time - start_time)
+    print("Time used percentage = ", (len(gt_time_list) - not_match_num) / len(gt_time_list))
+    print()
+    print("X-Y position difference mean(Meters) = ", position_mean_error)
+    print("Speed difference mean(km/h) = ", speed_mean_error)
+    print("Standard deviation of altitude [Test cell] = ", cell_altitude_std)
+    print("Mean of satellites used number [Test cell] =", cell_sat_used_mean)
+    print("Mean of HDOP [Test cell] = ", cell_hdop_mean)
+
+    print("-------------------------------------")
+    print("Save TXT data & 2D position plot")
+    analysis_data_file = open(cell_path[0][:-13] + '_analysis_data' + '.txt', 'w')
+    analysis_data_file.write("X-Y position mean absolute error(MAE) = %.3f \n" % position_mean_error)
+    analysis_data_file.write("\n")
+    analysis_data_file.write("X-Y position OFFSET = %.3f \n" % position_OFFSET)
+    analysis_data_file.write("\n")
+    analysis_data_file.write("Speed root-mean square difference(RMSD) = %.3f \n" % speed_mean_error)
+    analysis_data_file.write("\n")
+    analysis_data_file.write("Standard deviation of altitude [Cell] = %.3f \n" % cell_altitude_std)
+    analysis_data_file.write("\n")
+    analysis_data_file.write("Mean of satellites used number [Cell] = %.3f \n" % cell_sat_used_mean)
+    analysis_data_file.write("\n")
+    analysis_data_file.write("Mean of HDOP [Cell] = %.3f \n" % cell_hdop_mean)
 
     nmea2d.NMEA_2d_plot_main(gt_path[0], cell_path[0])
 
